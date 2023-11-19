@@ -98,8 +98,8 @@ public class Robot extends TimedRobot {
     Subsystems.driveSubsystem.setCurrentLimits(35);
 
     // not used in competition as teleop should not reset encoders (comment it out)
-      Subsystems.driveSubsystem.resetEncoders();
-      Subsystems.driveSubsystem.resetGyro();
+      //Subsystems.driveSubsystem.resetEncoders();
+      //Subsystems.driveSubsystem.resetGyro();
 
 
     CommandScheduler.getInstance().setDefaultCommand(Subsystems.driveSubsystem, (new DriveCommand(() -> RobotContainer.driver.getLeftY(), () -> RobotContainer.driver.getRightX())));
