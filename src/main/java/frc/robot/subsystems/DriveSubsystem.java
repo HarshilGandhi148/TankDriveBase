@@ -10,9 +10,12 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 //import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,11 +29,7 @@ public class DriveSubsystem extends SubsystemBase {
   public CANSparkMax backLeftMotor = new CANSparkMax(Constants.CAN_IDs.backLeftID, MotorType.kBrushless);
   public CANSparkMax backRightMotor = new CANSparkMax(Constants.CAN_IDs.backRightID, MotorType.kBrushless);
 
-
-  DifferentialDrive differentialDrive;
-
-  public AHRS gyro;
-  Rotation2d rotation2d;
+  public AHRS gyro = new AHRS(Port.kMXP);
 
   // driveEncoders
   public RelativeEncoder frontLeftEncoder;
@@ -38,12 +37,13 @@ public class DriveSubsystem extends SubsystemBase {
   public RelativeEncoder backLeftEncoder;
   public RelativeEncoder backRightEncoder;
  
-
   // motor controller groups
   public MotorControllerGroup leftMotorControllerGroup = new MotorControllerGroup(frontLeftMotor, backLeftMotor);
   public MotorControllerGroup righMotorControllerGroup = new MotorControllerGroup(frontRightMotor, backRightMotor);
 
+  DifferentialDrive differentialDrive = new DifferentialDrive(leftMotorControllerGroup, righMotorControllerGroup);
 
+  private final DifferentialDriveOdometry odometry;
 
   
   /** Creates a new Subsystem. */
@@ -53,12 +53,25 @@ public class DriveSubsystem extends SubsystemBase {
     backLeftEncoder = backLeftMotor.getEncoder();
     backRightEncoder = backRightMotor.getEncoder();
 
+    frontLeftEncoder.setPositionConversionFactor(Constants.RobotConstants.linearConversion);
+    frontRightEncoder.setPositionConversionFactor(Constants.RobotConstants.linearConversion);
+    backLeftEncoder.setPositionConversionFactor(Constants.RobotConstants.linearConversion);
+    backRightEncoder.setPositionConversionFactor(Constants.RobotConstants.linearConversion);
+
+    frontLeftEncoder.setVelocityConversionFactor(Constants.RobotConstants.linearConversion/60);
+    frontRightEncoder.setVelocityConversionFactor(Constants.RobotConstants.linearConversion/60);
+    backLeftEncoder.setVelocityConversionFactor(Constants.RobotConstants.linearConversion/60);
+    backRightEncoder.setVelocityConversionFactor(Constants.RobotConstants.linearConversion/60);
+
     frontRightMotor.setInverted(true);
     backRightMotor.setInverted(true);
+    
+    resetEncoders();
+    resetGyro();
+    gyro.calibrate();
 
-    differentialDrive = new DifferentialDrive(leftMotorControllerGroup, righMotorControllerGroup);
-
-    gyro = new AHRS(Port.kMXP);
+    odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition());
+    odometry.resetPosition(gyro.getRotation2d(), 0, 0, new Pose2d());
     }
 
   public void setCurrentLimits(int currentLimit){
@@ -97,8 +110,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getAverageEncoderDistance() {
-    double conversionFactor = Math.PI * Constants.RobotConstants.wheelDiameter / Constants.RobotConstants.driveGearRatio;
-    return (frontLeftEncoder.getPosition()*conversionFactor + frontRightEncoder.getPosition()*conversionFactor + backLeftEncoder.getPosition()*conversionFactor + backRightEncoder.getPosition()*conversionFactor)/4;
+    return (getLeftEncoderPosition() + getRightEncoderPosition())/2.0;
   }
 
   public void resetGyro () {
@@ -110,17 +122,70 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getGyroPitch () {
-    // 0.31 is offset
-    return (gyro.getPitch() - 0.31) % 360;
+    return gyro.getPitch() % 360;
+  }
+
+  public double getGyroHeading() {
+    return gyro.getRotation2d().getDegrees();
+  }
+
+  public double getGyroTurnRate(){
+    return -gyro.getRate();
+  }
+
+  public Gyro getGyro() {
+    return gyro;
   }
 
   public void tankDrive(double forward, double rotation){
       differentialDrive.arcadeDrive(forward, rotation);
     }
 
+  public double getRightEncoderPosition()
+  {
+    return (frontRightEncoder.getPosition() + backRightEncoder.getPosition())/2;
+  }
+
+  public double getLeftEncoderPosition()
+  {
+    return -(frontLeftEncoder.getPosition() + backLeftEncoder.getPosition())/2;
+  }
+
+  public double getRightEncoderVelocity()
+  {
+    return (frontRightEncoder.getVelocity() + backRightEncoder.getVelocity())/2;
+  }
+
+  public double getLeftEncoderVelocity()
+  {
+    return -(frontLeftEncoder.getVelocity() + backLeftEncoder.getVelocity())/2;
+  }
+
+  public Pose2d getPose() {
+    return odometry.getPoseMeters();
+  }
+
+  public void resetOdometry(Pose2d pose2d) {
+    resetEncoders();
+    odometry.resetPosition(gyro.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition(), pose2d);
+  }
+
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(getLeftEncoderVelocity(), getRightEncoderVelocity());
+  }
+
+  public void tankDriveVots(double left, double right) {
+    frontLeftMotor.setVoltage(left);
+    backLeftMotor.setVoltage(left);
+    frontRightMotor.setVoltage(right);
+    backRightMotor.setVoltage(right);
+    differentialDrive.feed();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    odometry.update(gyro.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition());
   }
 
   @Override

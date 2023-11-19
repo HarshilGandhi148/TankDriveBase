@@ -102,10 +102,7 @@ public class Robot extends TimedRobot {
       Subsystems.driveSubsystem.resetGyro();
 
 
-    CommandScheduler.getInstance().setDefaultCommand(Subsystems.driveSubsystem, (new DriveCommand(() -> RobotContainer.driver.getLeftY(), () -> RobotContainer.driver.getLeftX())));
-    //CommandScheduler.getInstance().schedule(new ArmCommand());
-    //CommandScheduler.getInstance().schedule(new BalanceCommand());
-    //CommandScheduler.getInstance().schedule(new PipelineSwitchCommand());
+    CommandScheduler.getInstance().setDefaultCommand(Subsystems.driveSubsystem, (new DriveCommand(() -> RobotContainer.driver.getLeftY(), () -> RobotContainer.driver.getRightX())));
 
     /*--------------------------------------------------- 
       This makes sure that the autonomous stops running when
@@ -121,8 +118,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putNumber("Drive Encoder Distance", Subsystems.driveSubsystem.getAverageEncoderDistance());
-    SmartDashboard.putNumber("Gyro Angle", Subsystems.driveSubsystem.getGyroYaw());
+    SmartDashboard.putNumber("Drive Left (meters)", Subsystems.driveSubsystem.getLeftEncoderPosition());
+    SmartDashboard.putNumber("Drive Right (meters)", Subsystems.driveSubsystem.getRightEncoderPosition());
+    SmartDashboard.putNumber("Gyro Heading", Subsystems.driveSubsystem.getGyroHeading());
   }
 
   @Override
