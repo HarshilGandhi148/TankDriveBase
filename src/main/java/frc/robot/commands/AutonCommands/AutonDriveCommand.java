@@ -4,11 +4,11 @@
 
 package frc.robot.commands.AutonCommands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer.Subsystems;
 import frc.robot.utils.GalacPIDController;
 
-public class AutonDriveCommand extends CommandBase {
+public class AutonDriveCommand extends Command {
 
   double distance;
   double effort;

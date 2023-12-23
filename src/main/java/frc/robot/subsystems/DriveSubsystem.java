@@ -68,7 +68,6 @@ public class DriveSubsystem extends SubsystemBase {
     
     resetEncoders();
     resetGyro();
-    gyro.calibrate();
 
     odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition());
     odometry.resetPosition(gyro.getRotation2d(), 0, 0, new Pose2d());
@@ -133,7 +132,7 @@ public class DriveSubsystem extends SubsystemBase {
     return -gyro.getRate();
   }
 
-  public Gyro getGyro() {
+  public AHRS getGyro() {
     return gyro;
   }
 

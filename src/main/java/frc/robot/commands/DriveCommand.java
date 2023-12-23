@@ -6,9 +6,9 @@ package frc.robot.commands;
 
 import frc.robot.RobotContainer.Subsystems;
 import java.util.function.DoubleSupplier;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class DriveCommand extends CommandBase {
+public class DriveCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DoubleSupplier m_forward;
   private final DoubleSupplier m_rotation;

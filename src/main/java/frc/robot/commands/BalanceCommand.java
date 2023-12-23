@@ -3,11 +3,11 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer.Subsystems;
 import frc.robot.utils.GalacPIDController;
 
-public class BalanceCommand extends CommandBase {
+public class BalanceCommand extends Command {
   GalacPIDController turnPID;
   GalacPIDController balancePID;
   /** Creates a new BalanceCommand. */
