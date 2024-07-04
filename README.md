@@ -1,2 +1,2 @@
 # TankDriveBase
-Basic 4 motor tank drive
+4 motor tank drive with odometry
