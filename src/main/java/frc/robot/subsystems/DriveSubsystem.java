@@ -15,7 +15,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 //import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,22 +23,22 @@ import frc.robot.Constants;
 public class DriveSubsystem extends SubsystemBase {
   
   // driveMotorControllers
-  public CANSparkMax frontLeftMotor = new CANSparkMax(Constants.CAN_IDs.frontLeftID, MotorType.kBrushless);
-  public CANSparkMax frontRightMotor = new CANSparkMax(Constants.CAN_IDs.frontRightID, MotorType.kBrushless);
-  public CANSparkMax backLeftMotor = new CANSparkMax(Constants.CAN_IDs.backLeftID, MotorType.kBrushless);
-  public CANSparkMax backRightMotor = new CANSparkMax(Constants.CAN_IDs.backRightID, MotorType.kBrushless);
+  private CANSparkMax frontLeftMotor = new CANSparkMax(Constants.CAN_IDs.frontLeftID, MotorType.kBrushless);
+  private CANSparkMax frontRightMotor = new CANSparkMax(Constants.CAN_IDs.frontRightID, MotorType.kBrushless);
+  private CANSparkMax backLeftMotor = new CANSparkMax(Constants.CAN_IDs.backLeftID, MotorType.kBrushless);
+  private CANSparkMax backRightMotor = new CANSparkMax(Constants.CAN_IDs.backRightID, MotorType.kBrushless);
 
-  public AHRS gyro = new AHRS(Port.kMXP);
+  private AHRS gyro = new AHRS(Port.kMXP);
 
   // driveEncoders
-  public RelativeEncoder frontLeftEncoder;
-  public RelativeEncoder frontRightEncoder;
-  public RelativeEncoder backLeftEncoder;
-  public RelativeEncoder backRightEncoder;
+  private RelativeEncoder frontLeftEncoder;
+  private RelativeEncoder frontRightEncoder;
+  private RelativeEncoder backLeftEncoder;
+  private RelativeEncoder backRightEncoder;
  
   // motor controller groups
-  public MotorControllerGroup leftMotorControllerGroup = new MotorControllerGroup(frontLeftMotor, backLeftMotor);
-  public MotorControllerGroup righMotorControllerGroup = new MotorControllerGroup(frontRightMotor, backRightMotor);
+  private MotorControllerGroup leftMotorControllerGroup = new MotorControllerGroup(frontLeftMotor, backLeftMotor);
+  private MotorControllerGroup righMotorControllerGroup = new MotorControllerGroup(frontRightMotor, backRightMotor);
 
   DifferentialDrive differentialDrive = new DifferentialDrive(leftMotorControllerGroup, righMotorControllerGroup);
 
